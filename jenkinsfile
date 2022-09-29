@@ -1,0 +1,45 @@
+pipeline
+{
+    agent any
+    stages
+    {
+        stage ('ContinuounsDownload')
+        {
+            steps
+            {
+             git 'https://github.com/Hari2658/maven.git'
+            }
+        }
+        stage ('ContinuounsBuild')
+        {
+            steps
+            {
+             sh 'mvn package'
+            }
+        }
+        stage ('ContinuounsDeployment')
+        {
+            steps
+            {
+             deploy adapters: [tomcat9(credentialsId: '475124dd-1478-4871-8472-c2d45a2622a9', path: '', url: 'http://172.31.85.7:8080')], contextPath: 'prasad', war: '**/*.war'
+            }
+        }
+        stage ('ContinuounsTesting')
+        {
+            steps
+            {
+             git 'https://github.com/Hari2658/HariTestingcode.git'
+             sh 'java -jar /home/ubuntu/.jenkins/workspace/Sreekanth/testing.jar'
+            }
+        }
+        stage ('ContinuounsDeliver')
+        {
+            steps
+            {
+             input message: 'Need approval from the DM!', submitter: 'Nari'
+             deploy adapters: [tomcat9(credentialsId: '68d768a4-3de4-4a46-b992-d32d715f8988', path: '', url: 'http://172.31.91.113:8080')], contextPath: 'nari', war: '**/*.war'
+            }
+        }
+        
+    }
+}
